@@ -31,11 +31,8 @@
 #include <linux/compiler.h>
 #include <linux/llist.h>
 #include <linux/bitops.h>
-<<<<<<< HEAD
 #include <linux/overflow.h>
-=======
 #include <linux/rbtree_augmented.h>
->>>>>>> 323107b8a95e... mm/vmalloc.c: keep track of free blocks for vmap allocation
 
 #include <linux/uaccess.h>
 #include <asm/tlbflush.h>
@@ -1996,6 +1993,7 @@ void __init vmalloc_init(void)
 	 * Now we can initialize a free vmap space.
 	 */
 	vmap_init_free_space();
+	calc_total_vmalloc_size();
 	vmap_initialized = true;
 }
 
