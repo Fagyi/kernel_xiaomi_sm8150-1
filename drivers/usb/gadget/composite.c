@@ -568,14 +568,10 @@ static u8 encode_bMaxPower(enum usb_device_speed speed,
 		val = CONFIG_USB_GADGET_VBUS_DRAW;
 	if (!val)
 		return 0;
-	switch (speed) {
-	case USB_SPEED_SUPER:
-	case USB_SPEED_SUPER_PLUS:
-		return (u8)(val / 8);
-	default:
-		/* only SuperSpeed and faster support > 500mA */
-		return DIV_ROUND_UP(min(val, 500U), 2);
-	}
+	if (speed < USB_SPEED_SUPER)
+		return DIV_ROUND_UP(val, 2);
+	else
+		return DIV_ROUND_UP(val, 8);
 }
 
 static int config_buf(struct usb_configuration *config,
@@ -978,6 +974,11 @@ static int set_config(struct usb_composite_dev *cdev,
 		power = min(power, 500U);
 
 done:
+	if (power <= USB_SELF_POWER_VBUS_MAX_DRAW)
+		usb_gadget_set_selfpowered(gadget);
+	else
+		usb_gadget_clear_selfpowered(gadget);
+
 	usb_gadget_vbus_draw(gadget, power);
 	if (result >= 0 && cdev->delayed_status)
 		result = USB_GADGET_DELAYED_STATUS;
@@ -2145,6 +2146,7 @@ void composite_disconnect(struct usb_gadget *gadget)
 	 * disconnect callbacks?
 	 */
 	spin_lock_irqsave(&cdev->lock, flags);
+	cdev->suspended = 0;
 	if (cdev->config)
 		reset_config(cdev);
 	if (cdev->driver->disconnect)
@@ -2414,6 +2416,7 @@ void composite_suspend(struct usb_gadget *gadget)
 	cdev->suspended = 1;
 	spin_unlock_irqrestore(&cdev->lock, flags);
 
+	usb_gadget_set_selfpowered(gadget);
 	usb_gadget_vbus_draw(gadget, 2);
 }
 
@@ -2466,6 +2469,10 @@ void composite_resume(struct usb_gadget *gadget)
 		maxpower = maxpower ? maxpower : CONFIG_USB_GADGET_VBUS_DRAW;
 		if (gadget->speed < USB_SPEED_SUPER)
 			maxpower = min(maxpower, 500U);
+
+		if (maxpower > USB_SELF_POWER_VBUS_MAX_DRAW)
+			usb_gadget_clear_selfpowered(gadget);
+
 		usb_gadget_vbus_draw(gadget, maxpower);
 	}
 
