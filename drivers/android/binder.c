@@ -92,7 +92,7 @@ static struct dentry *binder_debugfs_dir_entry_root;
 static struct dentry *binder_debugfs_dir_entry_proc;
 static atomic_t binder_last_id;
 
-#ifdef CONFIG_DEBUG_FS
+#ifdef CONFIG_DEBUG_FS1
 static int proc_show(struct seq_file *m, void *unused);
 DEFINE_SHOW_ATTRIBUTE(proc);
 #endif
@@ -5243,7 +5243,7 @@ static int binder_open(struct inode *nodp, struct file *filp)
 	mutex_lock(&binder_procs_lock);
 	hlist_add_head(&proc->proc_node, &binder_procs);
 	mutex_unlock(&binder_procs_lock);
-#ifdef	CONFIG_DEBUG_FS
+#ifdef	CONFIG_DEBUG_FS1
 	if (binder_debugfs_dir_entry_proc) {
 		char strbuf[11];
 
@@ -6009,7 +6009,7 @@ int binder_transactions_show(struct seq_file *m, void *unused)
 	return 0;
 }
 
-static int proc_show(struct seq_file *m, void *unused)
+static int __maybe_unused proc_show(struct seq_file *m, void *unused)
 {
 	struct binder_proc *itr;
 	int pid = (unsigned long)m->private;
@@ -6202,7 +6202,7 @@ static int __init binder_init(void)
 	if (binder_debugfs_dir_entry_root)
 		binder_debugfs_dir_entry_proc = debugfs_create_dir("proc",
 						 binder_debugfs_dir_entry_root);
-#ifdef CONFIG_DEBUG_FS
+#ifdef CONFIG_DEBUG_FS1
 	if (binder_debugfs_dir_entry_root) {
 		debugfs_create_file("state",
 				    0444,

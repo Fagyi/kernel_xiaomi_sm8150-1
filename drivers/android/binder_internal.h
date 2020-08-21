@@ -105,7 +105,7 @@ static inline int __init init_binderfs(void)
 }
 #endif
 
-#ifdef CONFIG_DEBUG_FS
+#ifdef CONFIG_DEBUG_FS1
 int binder_stats_show(struct seq_file *m, void *unused);
 DEFINE_SHOW_ATTRIBUTE(binder_stats);
 
