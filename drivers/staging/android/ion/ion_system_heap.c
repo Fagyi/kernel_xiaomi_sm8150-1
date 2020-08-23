@@ -37,10 +37,9 @@ static gfp_t high_order_gfp_flags = (GFP_HIGHUSER | __GFP_ZERO | __GFP_NOWARN |
 				     __GFP_NORETRY) & ~__GFP_RECLAIM;
 static gfp_t low_order_gfp_flags  = GFP_HIGHUSER | __GFP_ZERO;
 
-static struct kmem_cache *ion_page_info_pool;
-
 bool pool_auto_refill_en  __read_mostly =
 		IS_ENABLED(CONFIG_ION_POOL_AUTO_REFILL);
+static struct kmem_cache *ion_page_info_pool;
 
 int order_to_index(unsigned int order)
 {
